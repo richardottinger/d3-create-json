@@ -1,7 +1,5 @@
 SUBROUTINE JSON.START.ARRAY(ELEMENT,JSON.STRING)
-
+   IF NOT(ASSIGNED(JSON.STRING)) THEN CRT "The json string has not been started!";CRT; RETURN
    * begin the array of objects
-
    JSON.STRING := '"' : ELEMENT : '":['
-
 RETURN
