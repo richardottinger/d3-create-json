@@ -1,85 +1,46 @@
 SUBROUTINE CREATE.KEY.VALUE.PAIRS(KV_ARRAY, KEY.VALUE.PAIRS)
-
+*  RETURNS AN OBJECT OF {KEY:VALUE} PAIRS
    EQUATE AM TO CHAR(254)
-
    
-
-   IF NOT(ASSIGNED(KV_ARRAY)) THEN KV_ARRAY="You need to define an array of key value pairs"; RETURN
-
-* REQUIRED or will default to string data type -> First character of key determines data type used when building the json data structure
-
+   IF NOT(ASSIGNED(KV_ARRAY)) THEN CRT "Array of key value pairs not defined!";CRT; RETURN
+* REQUIRED or will default to string data type -> Data type and key is searated by a colon data_type:key.
+*     data type is used when building the json data structure
 *     # = number  : VALUE WILL NOT BE WRAPPED IN DOUBLE QUOTES
-
 *     @ = string  : ENCLOSES VALUE IN DOUBLE QUOTES
-
 *     ! = boolean : IF VALUE IS EQUAL TO 1 THEN true WITH NO QUOTES else false WITH NO QUOTES
-
 *     $ = object  : VALUE WILL NOT BE WRAPPED IN DOUBLE QUOTES
-
    KV.CNT = DCOUNT(KV_ARRAY,AM)
-
    
-
    
-
    KEY.VALUE.PAIRS=''
-
-   
-
    FOR I=1 TO KV.CNT
-
-      DATA.TYPE.CODE = KV_ARRAY<I,1>[1,1]
-
-      KEY.NAME       = KV_ARRAY<I,1>[2,99]
-
+      TEST.VAL = INDEX(KV_ARRAY<I,1>,':',1)
+      IF INDEX(KV_ARRAY<I,1>,':',1)=0 THEN CRT "Data Type not defined! *** " : KV_ARRAY<I,1> : ' *** add : to beginning of key to default to string'; CRT; RETURN 
+      DATA.TYPE.CODE = FIELD(KV_ARRAY<I,1>,':',1)
+      KEY.NAME       = FIELD(KV_ARRAY<I,1>,':',2)
       CONTENT        = KV_ARRAY<I,2>
-
       
-
       KEY.VALUE.PAIR = '"' : KEY.NAME : '":'
-
       BEGIN CASE
-
          CASE DATA.TYPE.CODE EQ '@'  ;* string
-
             KEY.VALUE.PAIR := '"' : CONTENT : '"'
-
          CASE DATA.TYPE.CODE EQ '!'  ;* boolean
-
             IF CONTENT EQ "1" THEN
-
                KEY.VALUE.PAIR := "true"
-
             END ELSE
-
                KEY.VALUE.PAIR := "false"
-
             END
-
          CASE INDEX('#$',DATA.TYPE.CODE,1)>0  ;* number OR object
-
             KEY.VALUE.PAIR := CONTENT
-
          CASE 1 ;* default to string data type
-
             KEY.VALUE.PAIR := '"' : CONTENT : '"'
-
       END CASE 
-
       
-
       IF I < KV.CNT THEN
-
          KEY.VALUE.PAIRS := KEY.VALUE.PAIR : ','
-
       END ELSE
-
          KEY.VALUE.PAIRS := KEY.VALUE.PAIR
-
       END
-
    NEXT I
-
    KEY.VALUE.PAIRS = '{': KEY.VALUE.PAIRS : '}'
-
 RETURN

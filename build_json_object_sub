@@ -1,0 +1,9 @@
+SUBROUTINE BUILD.JSON.OBJECT(ARRAY_OBJECT,ELEMENT)
+*  PRECONDITIONS:
+*     ELEMENT - the parent element (key) that this object will be assigned to
+*   
+   IF NOT(ASSIGNED(ARRAY_OBJECT)) THEN CRT "You need to define an array of key value pairs"; CRT RETURN
+   
+   CALL CREATE.KEY.VALUE.PAIRS(ARRAY_OBJECT, KEY.VALUE.PAIRS)
+   ARRAY_OBJECT = '"' : ELEMENT : '":' : KEY.VALUE.PAIRS
+RETURN
