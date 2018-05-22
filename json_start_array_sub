@@ -1,0 +1,7 @@
+SUBROUTINE JSON.START.ARRAY(ELEMENT,JSON.STRING)
+
+   * begin the array of objects
+
+   JSON.STRING := '"' : ELEMENT : '":['
+
+RETURN

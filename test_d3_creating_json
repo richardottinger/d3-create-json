@@ -1,0 +1,344 @@
+
+* TEST D3 PROGRAM This program builds  an array of objects...currently duplicating the same data...
+
+EQUATE AM TO CHAR(254)
+
+EQUATE VM TO CHAR(253)
+
+EQUATE SVM TO CHAR(252)
+
+EQUATE FALSE TO 0
+
+EQUATE TRUE TO 1
+
+  
+
+  
+
+ 
+
+CRT '**************************************************************' 
+
+CRT
+
+CRT 'EXAMPLE 1: Build an array of employee objects.  each employee object contains a driver object' 
+
+CRT
+
+CRT
+
+* Begin the json
+
+JSON.STRING = '{'
+
+ 
+
+*****************
+
+ 
+
+* GENERATE some test data
+
+ 
+
+* <1=[DATA TYPE CODE]KEY,2=VALUE>
+
+* REQUIRED or will default to string data type -> First character of key determines data type used when building the json data structure
+
+*     # = number
+
+*     @ = string
+
+*     ! = boolean
+
+*     $ = object
+
+*****************
+
+ 
+
+ 
+
+ 
+
+*****************
+
+ 
+
+* ADD an array of employee objects
+
+ 
+
+*****************
+
+ 
+
+   CALL JSON.START.ARRAY("employees",JSON.STRING)
+
+ 
+
+FOR I = 1 TO 4
+
+ 
+
+*LOOP
+
+   * get data
+
+   * build dynamic array of key value pairs
+
+   * convert array to json key value pairs
+
+      EM_KV_ARRAY=''
+
+      EM_KV_ARRAY<1,1> = "#number"
+
+      EM_KV_ARRAY<1,2> = "875"
+
+      EM_KV_ARRAY<2,1> = "@first_name"
+
+      EM_KV_ARRAY<2,2> = "Ted"
+
+      EM_KV_ARRAY<3,1> = "@last_name"
+
+      EM_KV_ARRAY<3,2> = "Kennedy"
+
+      EM_KV_ARRAY<4,1> = "@date_of_birth"
+
+      EM_KV_ARRAY<4,2> = "1965-01-08"
+
+      EM_KV_ARRAY<5,1> = "@phone"
+
+      EM_KV_ARRAY<5,2> = "9031239999"
+
+      EM_KV_ARRAY<6,1> = "@hire_date"
+
+      EM_KV_ARRAY<6,2> = "2007-10-20"
+
+      
+
+      
+
+*****************
+
+ 
+
+* CREATE an driver object that will be added each employee object
+
+ 
+
+*****************
+
+ 
+
+      EM_KV_ARRAY<7,1> = "$driver"
+
+      
+
+      DM_KV_ARRAY=''
+
+      DM_KV_ARRAY<1,1> = "#license_number"
+
+      DM_KV_ARRAY<1,2> = "54375789"
+
+      DM_KV_ARRAY<2,1> = "@expires_on"
+
+      DM_KV_ARRAY<2,2> = "2019-02-13"
+
+      DM_KV_ARRAY<3,1> = "!active"
+
+      DM_KV_ARRAY<3,2> = "1"
+
+      
+
+      * convert driver array to key/value pairs
+
+      CALL CREATE.KEY.VALUE.PAIRS(DM_KV_ARRAY, KEY.VALUE.PAIRS)
+
+      
+
+      * ADD DRIVER OBJECT TO EMPLOYEE OBJECT
+
+      EM_KV_ARRAY<7,2> = KEY.VALUE.PAIRS 
+
+     
+
+      * convert the employee array to key/value pairs
+
+      CALL CREATE.KEY.VALUE.PAIRS(EM_KV_ARRAY, KEY.VALUE.PAIRS)
+
+      
+
+      * add the current employee object to the array
+
+      IF I < 4 THEN
+
+         CALL JSON.ADD.OBJECT(KEY.VALUE.PAIRS,JSON.STRING , FALSE)
+
+      END ELSE
+
+         CALL JSON.ADD.OBJECT(KEY.VALUE.PAIRS,JSON.STRING , TRUE)
+
+      END
+
+*REPEAT 
+
+ 
+
+NEXT I
+
+ 
+
+ 
+
+*****************
+
+ 
+
+* ADD MORE HERE
+
+ 
+
+*****************
+
+JSON.STRING := ',"request_timestamp":"' : OCONV(DATE(),'D2/') : ' ' : OCONV(TIME(),'MTHS') : '"'
+
+ 
+
+* end of json
+
+JSON.STRING := '}'
+
+ 
+
+CRT JSON.STRING
+
+ 
+
+ 
+
+CRT '**************************************************************'
+
+ 
+
+CRT
+
+CRT
+
+CRT 'EXAMPLE 2: Build a simple json employee object'
+
+CRT
+
+CRT
+
+ 
+
+ 
+
+   JSON.STRING = '{'
+
+   EM_KV_ARRAY=''
+
+   EM_KV_ARRAY<1,1> = "#number"
+
+   EM_KV_ARRAY<1,2> = "875"
+
+   EM_KV_ARRAY<2,1> = "@first_name"
+
+   EM_KV_ARRAY<2,2> = "Ted"
+
+   EM_KV_ARRAY<3,1> = "@last_name"
+
+   EM_KV_ARRAY<3,2> = "Kennedy"
+
+   EM_KV_ARRAY<4,1> = "@date_of_birth"
+
+   EM_KV_ARRAY<4,2> = "1965-01-08"
+
+   EM_KV_ARRAY<5,1> = "@phone"
+
+   EM_KV_ARRAY<5,2> = "9031239999"
+
+   EM_KV_ARRAY<6,1> = "@hire_date"
+
+   EM_KV_ARRAY<6,2> = "2007-10-20"
+
+      
+
+      
+
+   CALL BUILD.JSON.OBJECT(EM_KV_ARRAY,'employee')
+
+   JSON.STRING := EM_KV_ARRAY
+
+   * end of json
+
+   JSON.STRING := '}'
+
+   
+
+   CRT JSON.STRING
+
+   
+
+   
+
+   
+
+ 
+
+CRT '**************************************************************'
+
+ 
+
+CRT
+
+CRT 'EXAMPLE 3: without the employee key'
+
+CRT
+
+CRT
+
+   
+
+   
+
+   EM_KV_ARRAY=''
+
+   EM_KV_ARRAY<1,1> = "#number"
+
+   EM_KV_ARRAY<1,2> = "875"
+
+   EM_KV_ARRAY<2,1> = "@first_name"
+
+   EM_KV_ARRAY<2,2> = "Ted"
+
+   EM_KV_ARRAY<3,1> = "@last_name"
+
+   EM_KV_ARRAY<3,2> = "Kennedy"
+
+   EM_KV_ARRAY<4,1> = "@date_of_birth"
+
+   EM_KV_ARRAY<4,2> = "1965-01-08"
+
+   EM_KV_ARRAY<5,1> = "@phone"
+
+   EM_KV_ARRAY<5,2> = "9031239999"
+
+   EM_KV_ARRAY<6,1> = "@hire_date"
+
+   EM_KV_ARRAY<6,2> = "2007-10-20"
+
+   
+
+   CALL CREATE.KEY.VALUE.PAIRS(EM_KV_ARRAY, KEY.VALUE.PAIRS)
+
+   JSON.STRING = KEY.VALUE.PAIRS
+
+   
+
+   CRT JSON.STRING
+
+   
+
+STOP
