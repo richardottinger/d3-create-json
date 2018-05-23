@@ -25,6 +25,7 @@ JSON.STRING = '{'
 *     @ = string
 *     ! = boolean
 *     $ = object
+*     : IF YOU JUST ENTER A COLON THEN DATA TYPE WILL DEFAULT TO STRING
 *****************
 
 
@@ -40,9 +41,13 @@ JSON.STRING = '{'
 FOR I = 1 TO 4
 
 *LOOP
-   * get data
-   * build dynamic array of key value pairs
-   * convert array to json key value pairs
+   * BASIC WORKFLOW
+   *     Tell your program that you want to start building a json array by calling JSON.START.ARRAY
+   *     get data for a single record
+   *     build dynamic array of key value pairs for all fields for that record
+   *     convert the array to json key value pairs using CREATE.KEY.VALUE.PAIRS
+   *     add that object to the current json array using JSON.ADD.OBJECT
+   *     the last object should pass 1 in the last call to JSON.ADD.OBJECT to tell your program that you want to close the json array
       EM_KV_ARRAY=''
       EM_KV_ARRAY<1,1> = "#:number"
       EM_KV_ARRAY<1,2> = "875"
@@ -60,11 +65,15 @@ FOR I = 1 TO 4
       
 *****************
 
-* CREATE an driver object that will be added each employee object
+* CREATE an driver object that will be added to each employee object
 
 *****************
-
-      EM_KV_ARRAY<7,1> = "$:driver"
+*********** --> NEST a driver object within the employee object like this
+      EM_KV_ARRAY<7,1> = "$:driver"  ;* NOTE:   we add the following driver:{} object to the employee object
+                                     *         if you need to nest another object within the driver object 
+                                     *             then add a key to the driver array
+                                     *                & call CREATE.KEY.VALUE.PAIRS to create that object 
+                                     *                and assign that object to the driver dynamic array value position for that object.
       
       DM_KV_ARRAY=''
       DM_KV_ARRAY<1,1> = "#:license_number"
@@ -73,6 +82,8 @@ FOR I = 1 TO 4
       DM_KV_ARRAY<2,2> = "2019-02-13"
       DM_KV_ARRAY<3,1> = "!:active"
       DM_KV_ARRAY<3,2> = "1"
+      
+*******************************************************************************
       
       * convert driver array to key/value pairs
       CALL CREATE.KEY.VALUE.PAIRS(DM_KV_ARRAY, KEY.VALUE.PAIRS)
@@ -170,3 +181,4 @@ CRT
    CRT JSON.STRING
    
 STOP
+
