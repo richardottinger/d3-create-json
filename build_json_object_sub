@@ -1,9 +1,8 @@
-SUBROUTINE BUILD.JSON.OBJECT(ARRAY_OBJECT,ELEMENT)
+SUBROUTINE BUILD.JSON.OBJECT(ARRAY_OBJECT,KEY)
 *  PRECONDITIONS:
-*     ELEMENT - the parent element (key) that this object will be assigned to
-*   
-   IF NOT(ASSIGNED(ARRAY_OBJECT)) THEN CRT "You need to define an array of key value pairs"; CRT RETURN
-   
-   CALL CREATE.KEY.VALUE.PAIRS(ARRAY_OBJECT, KEY.VALUE.PAIRS)
-   ARRAY_OBJECT = '"' : ELEMENT : '":' : KEY.VALUE.PAIRS
+*     KEY - pass in the key that this object will be assigned to
+*     ARRAY_OBJECT - pass in a dynamic array that contains the key value pairs and return a json object that contains the key value pairs
+   IF NOT(ASSIGNED(ARRAY_OBJECT)) THEN CRT "You need to define an dynamic array that contains the key value pairs"; CRT RETURN
+   CALL JSON.CREATE.OBJECT(ARRAY_OBJECT, JSON.OBJECT)
+   ARRAY_OBJECT = '"' : KEY : '":' : JSON.OBJECT
 RETURN

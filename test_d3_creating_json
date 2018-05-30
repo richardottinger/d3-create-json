@@ -3,163 +3,202 @@ EQUATE AM TO CHAR(254)
 EQUATE VM TO CHAR(253)
 EQUATE SVM TO CHAR(252)
 EQUATE FALSE TO 0
-EQUATE TRUE TO 1
+EQUATE TRUE       TO 1
+EQUATE QUOTED     TO 1
+EQUATE NOT.QUOTED TO 0
   
   
+   GOSUB EXAMPLE1.CREATE.JSON.ARRAY
+   GOSUB EXAMPLE2.BUILD.SINGLE.OBJECT
+   GOSUB EXAMPLE3.CREATE.JSON.OBJECT.WITHOUT.KEY
 
-CRT '**************************************************************' 
-CRT
-CRT 'EXAMPLE 1: Build an array of employee objects.  each employee object contains a driver object' 
-CRT
-CRT
-* Begin the json
-JSON.STRING = '{'
+STOP
+*
+EXAMPLE1.CREATE.JSON.ARRAY:
 
-*****************
-
-* GENERATE some test data
-
-* <1=[DATA TYPE CODE]:KEY,2=VALUE>
-* REQUIRED or will default to string data type -> First character of key determines data type used when building the json data structure
-*     # = number
-*     @ = string
-*     ! = boolean
-*     $ = object
-*     : IF YOU JUST ENTER A COLON THEN DATA TYPE WILL DEFAULT TO STRING
-*****************
-
-
-
+   CRT
+   CRT '**************************************************************' 
+   CRT 'EXAMPLE 1: Build an array of employee objects.'
+   CRT '             nesting objects...each employee object contains a driver object & a contact object' 
+   CRT '**************************************************************' 
+   CRT
+   
+   * This variable will contain the complete json string result.  json objects, json array of objects, & json key value pairs will be appended to this string
+   JSON.STRING = '{'
+   
 *****************
 
 * ADD an array of employee objects
 
 *****************
 
-   CALL JSON.START.ARRAY("employees",JSON.STRING)
-
-FOR I = 1 TO 4
-
-*LOOP
-   * BASIC WORKFLOW
-   *     Tell your program that you want to start building a json array by calling JSON.START.ARRAY
-   *     get data for a single record
-   *     build dynamic array of key value pairs for all fields for that record
-   *     convert the array to json key value pairs using CREATE.KEY.VALUE.PAIRS
-   *     add that object to the current json array using JSON.ADD.OBJECT
-   *     the last object should pass 1 in the last call to JSON.ADD.OBJECT to tell your program that you want to close the json array
-      EM_KV_ARRAY=''
-      EM_KV_ARRAY<1,1> = "#:number"
-      EM_KV_ARRAY<1,2> = "875"
-      EM_KV_ARRAY<2,1> = "@:first_name"
-      EM_KV_ARRAY<2,2> = "Ted"
-      EM_KV_ARRAY<3,1> = "@:last_name"
-      EM_KV_ARRAY<3,2> = "Kennedy"
-      EM_KV_ARRAY<4,1> = "@:date_of_birth"
-      EM_KV_ARRAY<4,2> = "1965-01-08"
-      EM_KV_ARRAY<5,1> = "@:phone"
-      EM_KV_ARRAY<5,2> = "9031239999"
-      EM_KV_ARRAY<6,1> = "@:hire_date"
-      EM_KV_ARRAY<6,2> = "2007-10-20"
-      
-      
-*****************
-
-* CREATE an driver object that will be added to each employee object
-
-*****************
-*********** --> NEST a driver object within the employee object like this
-      EM_KV_ARRAY<7,1> = "$:driver"  ;* NOTE:   we add the following driver:{} object to the employee object
-                                     *         if you need to nest another object within the driver object 
-                                     *             then add a key to the driver array
-                                     *                & call CREATE.KEY.VALUE.PAIRS to create that object 
-                                     *                and assign that object to the driver dynamic array value position for that object.
-      
-      DM_KV_ARRAY=''
-      DM_KV_ARRAY<1,1> = "#:license_number"
-      DM_KV_ARRAY<1,2> = "54375789"
-      DM_KV_ARRAY<2,1> = "@:expires_on"
-      DM_KV_ARRAY<2,2> = "2019-02-13"
-      DM_KV_ARRAY<3,1> = "!:active"
-      DM_KV_ARRAY<3,2> = "1"
-      
-*******************************************************************************
-      
-      * convert driver array to key/value pairs
-      CALL CREATE.KEY.VALUE.PAIRS(DM_KV_ARRAY, KEY.VALUE.PAIRS)
-      
-      * ADD DRIVER OBJECT TO EMPLOYEE OBJECT
-      EM_KV_ARRAY<7,2> = KEY.VALUE.PAIRS 
-     
-      * convert the employee array to key/value pairs
-      CALL CREATE.KEY.VALUE.PAIRS(EM_KV_ARRAY, KEY.VALUE.PAIRS)
-      
-      * add the current employee object to the array
-      IF I < 4 THEN
-         CALL JSON.ADD.OBJECT(KEY.VALUE.PAIRS,JSON.STRING , FALSE)
-      END ELSE
-         CALL JSON.ADD.OBJECT(KEY.VALUE.PAIRS,JSON.STRING , TRUE)
-      END
-*REPEAT 
-
-NEXT I
-
+   JSON.ARRAY=''
+   FOR I = 1 TO 4
+   
+   *LOOP
+      * BASIC WORKFLOW
+      *     Tell your program that you want to start building a json array by calling JSON.START.ARRAY
+      *     Then get data for a single record
+      *     build dynamic array of key value pairs for all fields for that record
+      *     convert the array to json object that contains key value pairs using JSON.CREATE.OBJECT
+      *     add that object to the current json array using JSON.ARRAY.ADD.OBJECT
+         EM_KV_ARRAY=''
+         
+         
 
 *****************
 
-* ADD MORE HERE
+* GENERATE some test data
 
 *****************
-JSON.STRING := ',"request_timestamp":"' : OCONV(DATE(),'D2/') : ' ' : OCONV(TIME(),'MTHS') : '"'
+         CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "number",         "875",         NOT.QUOTED);* says assign to the next attribute in EM_KV_ARRAY dynamic array... the key=number & the value=875 to do not quote the value 
+         CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "first_name",     "Ted",         QUOTED) 
+         CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "last_name",      "Kennedy",     QUOTED) 
+         CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "date_of_birth",  "1965-01-08",  QUOTED) 
+         CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "phone",          "9031239999",  QUOTED) 
+         CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "hire_date",      "2007-10-20",  QUOTED) 
+   *      
+   *      ALTERNATIVE TO USING JSON.ADD.FIELD SUBROUTINE...just build array manually.  NOT.QUOTED=0 or QUOTED=1
+   *      EM_KV_ARRAY<1,1>= "0:number"
+   *      EM_KV_ARRAY<1,2> = "875"
+   *      EM_KV_ARRAY<2,1> = QUOTED : ":first_name" ;* WITHOUT USING THE PREPEND FUNCTION
+   *      EM_KV_ARRAY<2,2> = "Ted"
+   *      EM_KV_ARRAY<3,1> = "1:last_name"          ;* 1=QUOTE VALUE, 0=VALUE NOT QUOTED, if you just enter a colon : before the key then the value will be quoted
+   *      EM_KV_ARRAY<3,2> = "Kennedy"
+   *      EM_KV_ARRAY<4,1> = "x:date_of_birth"   ;* ...any nonzero value before the colon will quote the value too
+   *      EM_KV_ARRAY<4,2> = "1965-01-08"
+   *      EM_KV_ARRAY<5,1> = "1:phone"
+   *      EM_KV_ARRAY<5,2> = "9031239999"
+   *      EM_KV_ARRAY<6,1> = "1:hire_date"
+   *      EM_KV_ARRAY<6,2> = "2007-10-20"
+         
+         
+   *****************
+   
+   * CREATE an driver object that will be added to each employee object
+   
+   *****************
+   *********** --> NEST a driver object within the employee object
+         
+         DM_KV_ARRAY=''
+         DM_KV_ARRAY<1,1> = "0:license_number"
+         DM_KV_ARRAY<1,2> = "54375789"
+         DM_KV_ARRAY<2,1> = "1:expires_on"
+         DM_KV_ARRAY<2,2> = "2019-02-13"
+         DM_KV_ARRAY<3,1> = "!:active"             ;* indicate Boolean fields using ! character
+         DM_KV_ARRAY<3,2> = "1"                    ;* a value of 1 or "true"  will convert to active:true without quotes in json...modify CREATE.KEY.VALUE.PAIRS subroutine if you need to modify
+         
+         * convert driver array to key/value pairs
+         CALL JSON.CREATE.OBJECT(DM_KV_ARRAY, JSON.OBJECT)
+         
+         * ADD DRIVER json OBJECT TO EMPLOYEE OBJECT
+*         EM_KV_ARRAY<7,1> = "0:driver"  ;* add the following driver:{} object to the employee object
+                                        *         if you need to nest another object within the driver object 
+                                        *             then add a key to the driver array
+                                        *                & call JSON.CREATE.OBJECT to create that object 
+                                        *                and assign that object to the driver dynamic array value position for that object.
+*         EM_KV_ARRAY<7,2> = KEY.VALUE.PAIRS       ;* Alternatively add the driver object to the employee array
+         CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "driver",         JSON.OBJECT,         NOT.QUOTED)  ;* Alternatively add a nested object to the employee json object using JSON.ADD.PAIR
+         
+   *******************************************************************************
+   *      Add more employee fields --> Alternatively if you do not want to explicitly indicate if value should be wrapped in quotes THEN instead the value will be tested
+   *        if the value is numeric,         then the value will not have quotes
+   *        if the value is alpha numeric,   then the value will be wrapped in quotes
+   *        if the value is 1,               then the value will not have quotes...passes the numberic test...ex --> active:1 
+   *        if the value is true,            then the value will be wrapped in quotes...passes the alpha numeric test...ex --> active:"true"
+   *           only way to get true without quotes is to indicate that the value is boolean by prepending !:active to the key...ex --> active:true
+   *        if the value is wrapped in {},   then the value is assumed to be a nested json object and will not be wrapped in quotes
+         EM_KV_ARRAY<8,1> = "contact" ;* nest a contact object within each employee 
+         CONTACT_KV_ARRAY=''
+         CONTACT_KV_ARRAY<1,1> = "address"
+         CONTACT_KV_ARRAY<1,2> = "322 County Road Northwest 1233"
+*         CONTACT_KV_ARRAY<2,1> = "city"
+*         CONTACT_KV_ARRAY<2,2> = "Dallas"
+         CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "city",      "Dallas",  "")    ;* Just pass "" for VALUE.FLAG to have the value tested if quotes are needed
 
-* end of json
-JSON.STRING := '}'
-
-CRT JSON.STRING
-
-
-CRT '**************************************************************'
-
-CRT
-CRT
-CRT 'EXAMPLE 2: Build a simple json employee object'
-CRT
-CRT
-
-
-   JSON.STRING = '{'
-   EM_KV_ARRAY=''
-   EM_KV_ARRAY<1,1> = "#:number"
-   EM_KV_ARRAY<1,2> = "875"
-   EM_KV_ARRAY<2,1> = "@:first_name"
-   EM_KV_ARRAY<2,2> = "Ted"
-   EM_KV_ARRAY<3,1> = "@:last_name"
-   EM_KV_ARRAY<3,2> = "Kennedy"
-   EM_KV_ARRAY<4,1> = "@:date_of_birth"
-   EM_KV_ARRAY<4,2> = "1965-01-08"
-   EM_KV_ARRAY<5,1> = "@:phone"
-   EM_KV_ARRAY<5,2> = "9031239999"
-   EM_KV_ARRAY<6,1> = "@:hire_date"
-   EM_KV_ARRAY<6,2> = "2007-10-20"
-      
-      
-   CALL BUILD.JSON.OBJECT(EM_KV_ARRAY,'employee')
-   JSON.STRING := EM_KV_ARRAY
+         CONTACT_KV_ARRAY<3,1> = "state"
+         CONTACT_KV_ARRAY<3,2> = "TX"
+         CONTACT_KV_ARRAY<4,1> = "zip"
+         CONTACT_KV_ARRAY<4,2> = "23434"        ;* will not contain quotes but if a zip does contain dash, or other non numeric characters then the value will be quoted in the json..to consistently wrap each zip just prepend key... QUOTED:zip
+         CONTACT_KV_ARRAY<5,1> = "phone"
+         CONTACT_KV_ARRAY<5,2> = "2134566777"   ;* may want to strip out any dashes -, or (),etc...if you do not want this value to wrapped in quotes 
+         CONTACT_KV_ARRAY<6,1> = "BOOLtest1"    ;* "BOOLtest1":1
+         CONTACT_KV_ARRAY<6,2> = "1"  
+         CONTACT_KV_ARRAY<7,1> = "BOOLtest2"    ;* "BOOLtest2":"true"
+         CONTACT_KV_ARRAY<7,2> = "true"     
+         CONTACT_KV_ARRAY<8,1> = "!:BOOLtest3"  ;* indicate value is boolean using the ! --> "BOOLtest3":true
+         CONTACT_KV_ARRAY<8,2> = "true" 
+         CONTACT_KV_ARRAY<9,1> = "!:BOOLtest4"  ;* indicate value is boolean using the ! --> "BOOLtest4":true
+         CONTACT_KV_ARRAY<9,2> = "1" 
+         * convert contact array to json object that contains key/value pairs
+         CALL JSON.CREATE.OBJECT(CONTACT_KV_ARRAY, JSON.OBJECT)
+         
+         * ADD contact json OBJECT TO EMPLOYEE dynamic array
+         EM_KV_ARRAY<8,2> = JSON.OBJECT 
+        
+         * convert the employee array to key/value pairs
+         CALL JSON.CREATE.OBJECT(EM_KV_ARRAY, JSON.OBJECT)
+         
+         * add the json object to the json array
+         GOSUB ADD.OBJECT.TO.ARRAY
+   *REPEAT 
+   
+   NEXT I
+   
+   CALL STRING.PREPEND('employees:',JSON.ARRAY)    ;* JSON.ARRAY = "employees:" : JSON.ARRAY
+   CALL STRING.APPEND(JSON.ARRAY,JSON.STRING)      ;* JSON.STRING := JSON.ARRAY 
+   *****************
+   
+   * ADD MORE KEY/VALUES MANUALLY HERE
+   
+   *****************
+*   
+   TIME.STAMP = ',"request_timestamp":"' : OCONV(DATE(),'D2/') : ' ' : OCONV(TIME(),'MTHS') : '"'
+   CALL STRING.APPEND(TIME.STAMP,JSON.STRING)      ;* same as JSON.STRING := TIME.STAMP
+   
    * end of json
    JSON.STRING := '}'
    
    CRT JSON.STRING
-   
-   
-   
 
-CRT '**************************************************************'
+RETURN
+*
+EXAMPLE2.BUILD.SINGLE.OBJECT:
+   CRT
+   CRT '**************************************************************'
+   CRT 'EXAMPLE 2: Build a single json employee object'
+   CRT '**************************************************************'
+   CRT
 
-CRT
-CRT 'EXAMPLE 3: without the employee key'
-CRT
-CRT
+   EM_KV_ARRAY=''
+   EM_KV_ARRAY<1,1> = "0:number"
+   EM_KV_ARRAY<1,2> = "875"
+   EM_KV_ARRAY<2,1> = "1:first_name"
+   EM_KV_ARRAY<2,2> = "Ted"
+   EM_KV_ARRAY<3,1> = "1:last_name"
+   EM_KV_ARRAY<3,2> = "Kennedy"
+   EM_KV_ARRAY<4,1> = "1:date_of_birth"
+   EM_KV_ARRAY<4,2> = "1965-01-08"
+   EM_KV_ARRAY<5,1> = "1:phone"
+   EM_KV_ARRAY<5,2> = "9031239999"
+   EM_KV_ARRAY<6,1> = "1:hire_date"
+   EM_KV_ARRAY<6,2> = "2007-10-20"
+      
+   CALL BUILD.JSON.OBJECT(EM_KV_ARRAY,'employee')
    
+   * end of json
+   JSON.STRING = '{' : EM_KV_ARRAY : '}'
+   
+   CRT JSON.STRING
+
+RETURN
+*
+EXAMPLE3.CREATE.JSON.OBJECT.WITHOUT.KEY:
+   CRT
+   CRT '**************************************************************'
+   CRT 'EXAMPLE 3: without the employee key'
+   CRT '**************************************************************'
+   CRT
    
    EM_KV_ARRAY=''
    EM_KV_ARRAY<1,1> = "#:number"
@@ -175,10 +214,18 @@ CRT
    EM_KV_ARRAY<6,1> = "@:hire_date"
    EM_KV_ARRAY<6,2> = "2007-10-20"
    
-   CALL CREATE.KEY.VALUE.PAIRS(EM_KV_ARRAY, KEY.VALUE.PAIRS)
-   JSON.STRING = KEY.VALUE.PAIRS
+   CALL JSON.CREATE.OBJECT(EM_KV_ARRAY, JSON.OBJECT)
    
-   CRT JSON.STRING
-   
-STOP
-
+   CRT JSON.OBJECT
+RETURN
+*
+ADD.OBJECT.TO.ARRAY:
+*  determines whether to add with [, ], or append a comma, then adds the current json object to the json array that is currently being built
+   IF I < 4 THEN 
+      IF I EQ 1 THEN CALL STRING.PREPEND('[',JSON.OBJECT)   ;* same as JSON.OBJECT = '[' : JSON.OBJECT
+      CALL STRING.APPEND(',',JSON.OBJECT)                   ;* same as JSON.OBJECT := ','
+   END ELSE
+      CALL STRING.APPEND(']',JSON.OBJECT)
+   END
+   CALL STRING.APPEND(JSON.OBJECT,JSON.ARRAY)               ;* same as thing as JSON.ARRAY := JSON.OBJECT
+RETURN
