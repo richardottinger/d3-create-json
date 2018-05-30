@@ -1,0 +1,14 @@
+SUBROUTINE JSON.ADD.PAIR(KV_ARRAY,KEY,VALUE,VALUE.FLAG)
+* DESCRIPTION: Add a key/value pair to the KV_ARRAY dynamic array.  
+* VALUE.FLAG is used to determine if value should be quoted or not. 1=QUOTED, 0=NOT.QUOTED, OR ! = value is boolean
+* IF VALUE.FLAG IS "" THEN VALUE WILL BE TESTED to determine if quotes need to be added
+   EQUATE AM TO CHAR(254)
+   KEY.CNT = DCOUNT(KV_ARRAY,AM) + 1
+   IF VALUE.FLAG NE "" THEN
+      FIELD.INFO = VALUE.FLAG : ':' : KEY
+      KV_ARRAY = INSERT(KV_ARRAY,KEY.CNT,1;FIELD.INFO)
+   END ELSE
+      KV_ARRAY = INSERT(KV_ARRAY,KEY.CNT,1;KEY)
+   END
+   KV_ARRAY = INSERT(KV_ARRAY,KEY.CNT,2;VALUE)
+RETURN
