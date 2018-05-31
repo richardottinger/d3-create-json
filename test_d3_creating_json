@@ -37,11 +37,10 @@ EXAMPLE1.CREATE.JSON.ARRAY:
    
    *LOOP
       * BASIC WORKFLOW
-      *     Tell your program that you want to start building a json array by calling JSON.START.ARRAY
-      *     Then get data for a single record
-      *     build dynamic array of key value pairs for all fields for that record
-      *     convert the array to json object that contains key value pairs using JSON.CREATE.OBJECT
-      *     add that object to the current json array using JSON.ARRAY.ADD.OBJECT
+      *     Retrieve data for a single record
+      *     Build dynamic array of key value pairs for all fields for that record...using either JSON.ADD.PAIR subroutine or manually build the dynamic array
+      *     Then convert the array to json object that contains key value pairs using JSON.CREATE.OBJECT
+      *        Then add that json object to a json array using either ...The internal subroutine ADD.OBJECT.TO.ARRAY or the JSON.ARRAY.ADD.OBJECT subroutine
          EM_KV_ARRAY=''
          
          
@@ -140,7 +139,8 @@ EXAMPLE1.CREATE.JSON.ARRAY:
          CALL JSON.CREATE.OBJECT(EM_KV_ARRAY, JSON.OBJECT)
          
          * add the json object to the json array
-         GOSUB ADD.OBJECT.TO.ARRAY
+*         GOSUB ADD.OBJECT.TO.ARRAY                               ;* either use a internal subroutine 
+         CALL JSON.ARRAY.ADD.OBJECT(I,4,JSON.OBJECT,JSON.ARRAY)   ;* or alternatively call a subroutine to add a json object to a json array
    *REPEAT 
    
    NEXT I
@@ -169,20 +169,14 @@ EXAMPLE2.BUILD.SINGLE.OBJECT:
    CRT 'EXAMPLE 2: Build a single json employee object'
    CRT '**************************************************************'
    CRT
-
+   
    EM_KV_ARRAY=''
-   EM_KV_ARRAY<1,1> = "0:number"
-   EM_KV_ARRAY<1,2> = "875"
-   EM_KV_ARRAY<2,1> = "1:first_name"
-   EM_KV_ARRAY<2,2> = "Ted"
-   EM_KV_ARRAY<3,1> = "1:last_name"
-   EM_KV_ARRAY<3,2> = "Kennedy"
-   EM_KV_ARRAY<4,1> = "1:date_of_birth"
-   EM_KV_ARRAY<4,2> = "1965-01-08"
-   EM_KV_ARRAY<5,1> = "1:phone"
-   EM_KV_ARRAY<5,2> = "9031239999"
-   EM_KV_ARRAY<6,1> = "1:hire_date"
-   EM_KV_ARRAY<6,2> = "2007-10-20"
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "number",         "875",         NOT.QUOTED);* says assign to the next attribute in EM_KV_ARRAY dynamic array... the key=number & the value=875 to do not quote the value 
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "first_name",     "Ted",         QUOTED) 
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "last_name",      "Kennedy",     QUOTED) 
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "date_of_birth",  "1965-01-08",  QUOTED) 
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "phone",          "9031239999",  QUOTED) 
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "hire_date",      "2007-10-20",  QUOTED) 
    
    CALL JSON.CREATE.OBJECT(EM_KV_ARRAY, JSON.OBJECT)
    
@@ -201,31 +195,28 @@ EXAMPLE3.CREATE.JSON.OBJECT.WITHOUT.KEY:
    CRT
    
    EM_KV_ARRAY=''
-   EM_KV_ARRAY<1,1> = "#:number"
-   EM_KV_ARRAY<1,2> = "875"
-   EM_KV_ARRAY<2,1> = "@:first_name"
-   EM_KV_ARRAY<2,2> = "Ted"
-   EM_KV_ARRAY<3,1> = "@:last_name"
-   EM_KV_ARRAY<3,2> = "Kennedy"
-   EM_KV_ARRAY<4,1> = "@:date_of_birth"
-   EM_KV_ARRAY<4,2> = "1965-01-08"
-   EM_KV_ARRAY<5,1> = "@:phone"
-   EM_KV_ARRAY<5,2> = "9031239999"
-   EM_KV_ARRAY<6,1> = "@:hire_date"
-   EM_KV_ARRAY<6,2> = "2007-10-20"
+   
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "number",         "875",         NOT.QUOTED);* says assign to the next attribute in EM_KV_ARRAY dynamic array... the key=number & the value=875 to do not quote the value 
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "first_name",     "Ted",         QUOTED) 
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "last_name",      "Kennedy",     QUOTED) 
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "date_of_birth",  "1965-01-08",  QUOTED) 
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "phone",          "9031239999",  QUOTED) 
+   CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "hire_date",      "2007-10-20",  QUOTED) 
    
    CALL JSON.CREATE.OBJECT(EM_KV_ARRAY, JSON.OBJECT)
    
    CRT JSON.OBJECT
 RETURN
 *
-ADD.OBJECT.TO.ARRAY:
-*  determines whether to add with [, ], or append a comma, then adds the current json object to the json array that is currently being built
-   IF I < 4 THEN 
-      IF I EQ 1 THEN CALL STRING.PREPEND('[',JSON.OBJECT)   ;* same as JSON.OBJECT = '[' : JSON.OBJECT
-      CALL STRING.APPEND(',',JSON.OBJECT)                   ;* same as JSON.OBJECT := ','
-   END ELSE
-      CALL STRING.APPEND(']',JSON.OBJECT)
-   END
-   CALL STRING.APPEND(JSON.OBJECT,JSON.ARRAY)               ;* same as thing as JSON.ARRAY := JSON.OBJECT
-RETURN
+*ADD.OBJECT.TO.ARRAY:
+**  determines whether to add with [, ], or append a comma, then adds the current json object to the json array that is currently being built
+*   IF I < 4 THEN 
+*      IF I EQ 1 THEN CALL STRING.PREPEND('[',JSON.OBJECT)   ;* same as JSON.OBJECT = '[' : JSON.OBJECT
+*      CALL STRING.APPEND(',',JSON.OBJECT)                   ;* same as JSON.OBJECT := ','
+*   END ELSE
+*      CALL STRING.APPEND(']',JSON.OBJECT)
+*   END
+*   CALL STRING.APPEND(JSON.OBJECT,JSON.ARRAY)               ;* same as thing as JSON.ARRAY := JSON.OBJECT
+*RETURN
+
+

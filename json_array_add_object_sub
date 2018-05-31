@@ -1,0 +1,10 @@
+SUBROUTINE JSON.ARRAY.ADD.OBJECT(CURRENT,TOTAL,JSON_OBJECT,JSON_ARRAY)
+*  DESCRIPTION:  determines whether to PREPEND [, or APPEND a ], or append a comma to the JSON.OBJECT t, then adds the current json object to the json array that is currently being built
+   IF CURRENT < TOTAL THEN 
+      IF CURRENT EQ 1 THEN CALL STRING.PREPEND('[',JSON_OBJECT)   ;* same as JSON.OBJECT = '[' : JSON.OBJECT
+      CALL STRING.APPEND(',',JSON_OBJECT)                   ;* same as JSON.OBJECT := ','
+   END ELSE
+      CALL STRING.APPEND(']',JSON_OBJECT)
+   END
+   CALL STRING.APPEND(JSON_OBJECT,JSON_ARRAY)               ;* same as thing as JSON.ARRAY := JSON.OBJECT
+RETURN
