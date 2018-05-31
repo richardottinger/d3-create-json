@@ -113,8 +113,8 @@ EXAMPLE1.CREATE.JSON.ARRAY:
          CONTACT_KV_ARRAY<1,1> = "address"
          CONTACT_KV_ARRAY<1,2> = "322 County Road Northwest 1233"
 *         CONTACT_KV_ARRAY<2,1> = "city"
-*         CONTACT_KV_ARRAY<2,2> = "Dallas"
-         CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "city",      "Dallas",  "")    ;* Just pass "" for VALUE.FLAG to have the value tested if quotes are needed
+*         CONTACT_KV_ARRAY<2,2> = "Dallas"    ;* Alternatively you can instead use JSON.ADD.PAIR below to add pair to the next attribute
+         CALL JSON.ADD.PAIR( CONTACT_KV_ARRAY,   "city",      "Dallas",  "")    ;* Just pass "" for VALUE.FLAG to have the value tested if quotes are needed
 
          CONTACT_KV_ARRAY<3,1> = "state"
          CONTACT_KV_ARRAY<3,2> = "TX"
@@ -133,7 +133,7 @@ EXAMPLE1.CREATE.JSON.ARRAY:
          * convert contact array to json object that contains key/value pairs
          CALL JSON.CREATE.OBJECT(CONTACT_KV_ARRAY, JSON.OBJECT)
          
-         * ADD contact json OBJECT TO EMPLOYEE dynamic array
+         * THEN ADD contact json OBJECT TO EMPLOYEE dynamic array VALUE position
          EM_KV_ARRAY<8,2> = JSON.OBJECT 
         
          * convert the employee array to key/value pairs
@@ -183,11 +183,11 @@ EXAMPLE2.BUILD.SINGLE.OBJECT:
    EM_KV_ARRAY<5,2> = "9031239999"
    EM_KV_ARRAY<6,1> = "1:hire_date"
    EM_KV_ARRAY<6,2> = "2007-10-20"
-      
-   CALL BUILD.JSON.OBJECT(EM_KV_ARRAY,'employee')
+   
+   CALL JSON.CREATE.OBJECT(EM_KV_ARRAY, JSON.OBJECT)
    
    * end of json
-   JSON.STRING = '{' : EM_KV_ARRAY : '}'
+   JSON.STRING = '{"employee":' : JSON.OBJECT : '}'
    
    CRT JSON.STRING
 
