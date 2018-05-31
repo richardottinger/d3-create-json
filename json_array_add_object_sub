@@ -1,10 +1,14 @@
-SUBROUTINE JSON.ARRAY.ADD.OBJECT(CURRENT,TOTAL,JSON_OBJECT,JSON_ARRAY)
-*  DESCRIPTION:  determines whether to PREPEND [, or APPEND a ], or append a comma to the JSON.OBJECT t, then adds the current json object to the json array that is currently being built
-   IF CURRENT < TOTAL THEN 
-      IF CURRENT EQ 1 THEN CALL STRING.PREPEND('[',JSON_OBJECT)   ;* same as JSON.OBJECT = '[' : JSON.OBJECT
-      CALL STRING.APPEND(',',JSON_OBJECT)                   ;* same as JSON.OBJECT := ','
+SUBROUTINE JSON.ADD.PAIR(KV_ARRAY,KEY,VALUE,VALUE_FLAG)
+* DESCRIPTION: Add a key/value pair to the KV_ARRAY dynamic array.  
+* VALUE.FLAG is used to determine if value should be quoted or not. 1=QUOTED, 0=NOT.QUOTED, OR ! = value is boolean
+* IF VALUE.FLAG IS "" THEN VALUE WILL BE TESTED to determine if quotes need to be added
+   EQUATE AM TO CHAR(254)
+   KEY.CNT = DCOUNT(KV_ARRAY,AM) + 1
+   IF VALUE_FLAG NE "" THEN
+      FIELD.INFO = VALUE_FLAG : ':' : KEY
+      KV_ARRAY = INSERT(KV_ARRAY,KEY.CNT,1;FIELD.INFO)
    END ELSE
-      CALL STRING.APPEND(']',JSON_OBJECT)
+      KV_ARRAY = INSERT(KV_ARRAY,KEY.CNT,1;KEY)
    END
-   CALL STRING.APPEND(JSON_OBJECT,JSON_ARRAY)               ;* same as thing as JSON.ARRAY := JSON.OBJECT
+   KV_ARRAY = INSERT(KV_ARRAY,KEY.CNT,2;VALUE)
 RETURN
