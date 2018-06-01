@@ -1,4 +1,12 @@
-* This program builds  an array of objects...currently duplicating the same data...
+* This d3 program demonstrates how to create json
+* you can either 
+*     - specify that you want the value to be quoted or not quoted within the json
+*     - or you can choose to have the value tested which will determine if the value should have quotes or not within the json
+*           the contact array in Example 1 shows how to have the each value tested instead of specifying that each value should or should not have quotes
+* In order to have boolean values set to true or false without quotes you will need to indicate with an exclamation  
+*     else if you do not indicate value is boolean then 
+*        if the value is "1" then it will pass the numeric test and will not have quotes example    --> active:1
+*        if the value is "true" then it will not pass the numeric test and will have quotes example --> active:"true"
 EQUATE AM TO CHAR(254)
 EQUATE VM TO CHAR(253)
 EQUATE SVM TO CHAR(252)
@@ -57,10 +65,10 @@ EXAMPLE1.CREATE.JSON.ARRAY:
          CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "phone",          "9031239999",  QUOTED) 
          CALL JSON.ADD.PAIR( EM_KV_ARRAY,   "hire_date",      "2007-10-20",  QUOTED) 
    *      
-   *      ALTERNATIVE TO USING JSON.ADD.FIELD SUBROUTINE...just build array manually.  NOT.QUOTED=0 or QUOTED=1
+   *      ALTERNATIVE TO USING JSON.ADD.PAIR SUBROUTINE...just build array manually.  NOT.QUOTED=0 or QUOTED=1
    *      EM_KV_ARRAY<1,1>= "0:number"
    *      EM_KV_ARRAY<1,2> = "875"
-   *      EM_KV_ARRAY<2,1> = QUOTED : ":first_name" ;* WITHOUT USING THE PREPEND FUNCTION
+   *      EM_KV_ARRAY<2,1> = QUOTED : ":first_name" 
    *      EM_KV_ARRAY<2,2> = "Ted"
    *      EM_KV_ARRAY<3,1> = "1:last_name"          ;* 1=QUOTE VALUE, 0=VALUE NOT QUOTED, if you just enter a colon : before the key then the value will be quoted
    *      EM_KV_ARRAY<3,2> = "Kennedy"
@@ -145,8 +153,8 @@ EXAMPLE1.CREATE.JSON.ARRAY:
    
    NEXT I
    
-   CALL STRING.PREPEND('employees:',JSON.ARRAY)    ;* JSON.ARRAY = "employees:" : JSON.ARRAY
-   CALL STRING.APPEND(JSON.ARRAY,JSON.STRING)      ;* JSON.STRING := JSON.ARRAY 
+   CALL STRING.PREPEND('"employees":',JSON.ARRAY)    ;* JSON.ARRAY = "employees:" : JSON.ARRAY
+   CALL STRING.APPEND(JSON.ARRAY,JSON.STRING)        ;* JSON.STRING := JSON.ARRAY 
    *****************
    
    * ADD MORE KEY/VALUES MANUALLY HERE
@@ -218,5 +226,3 @@ RETURN
 *   END
 *   CALL STRING.APPEND(JSON.OBJECT,JSON.ARRAY)               ;* same as thing as JSON.ARRAY := JSON.OBJECT
 *RETURN
-
-
